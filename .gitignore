@@ -1,0 +1,77 @@
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python caches, build products, and test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local Python environments
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Notebooks and runtime logs
+.ipynb_checkpoints/
+*.log
+logs/
+runs/
+wandb/
+lightning_logs/
+events.out.tfevents.*
+
+# Datasets and generated numeric arrays
+data/
+datasets/
+SEED/
+SEED-IV/
+SEED_DE_MSMDA/
+*.npy
+*.npz
+*.mat
+*.h5
+*.hdf5
+
+# Training outputs, checkpoints, and exported models
+outputs/
+outputs_*/
+outputs-*/
+results/
+checkpoints/
+artifacts/
+subject_*_artifacts/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Reference weights distributed by the original DMMR repository
+!T-SNE/model/
+!T-SNE/model/*.pth
+
+# Local infrastructure notes
+docs/SERVER_MIGRATION_237.md

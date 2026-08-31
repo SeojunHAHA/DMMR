@@ -35,12 +35,47 @@ class LSTM(nn.Module):
         return feature[:, self.location, :], hn, cn
 
 class Encoder(nn.Module):
-    def __init__(self, input_dim=310, hid_dim=64, n_layers=2):
+    def __init__(self, input_dim=310, hid_dim=64, n_layers=2, encoder_type="lstm"):
         super(Encoder, self).__init__()
-        self.theta = LSTM(input_dim, hid_dim, n_layers)
+        self.encoder_type = encoder_type
+        if encoder_type == "lstm":
+            self.theta = LSTM(input_dim, hid_dim, n_layers)
+        elif encoder_type == "cnn":
+            self.theta = TemporalCNN(input_dim, hid_dim)
+        else:
+            raise ValueError(f"unsupported encoder_type: {encoder_type}")
     def forward(self, x):
         x_h = self.theta(x)
         return x_h
+
+
+class TemporalCNN(nn.Module):
+    """Temporal Conv1d encoder with an LSTM-decoder-compatible interface."""
+    def __init__(self, input_dim=310, output_dim=64):
+        super(TemporalCNN, self).__init__()
+        self.input = nn.Sequential(
+            nn.Conv1d(input_dim, output_dim, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm1d(output_dim),
+            nn.ReLU(inplace=True),
+        )
+        self.temporal = nn.Sequential(
+            nn.Conv1d(output_dim, output_dim, kernel_size=3, padding=2, dilation=2, bias=False),
+            nn.BatchNorm1d(output_dim),
+            nn.ReLU(inplace=True),
+            nn.Conv1d(output_dim, output_dim, kernel_size=3, padding=4, dilation=4, bias=False),
+            nn.BatchNorm1d(output_dim),
+        )
+        self.pool = nn.AdaptiveAvgPool1d(1)
+        self.hidden_projection = nn.Linear(output_dim, output_dim)
+        self.cell_projection = nn.Linear(output_dim, output_dim)
+
+    def forward(self, x):
+        feature = self.input(x.transpose(1, 2))
+        feature = F.relu(feature + self.temporal(feature), inplace=True)
+        latent = self.pool(feature).squeeze(-1)
+        hidden = self.hidden_projection(latent).unsqueeze(0)
+        cell = self.cell_projection(latent).unsqueeze(0)
+        return latent, hidden, cell
 
 class Decoder(nn.Module):
     def __init__(self, input_dim=310, hid_dim=64, n_layers=2,output_dim=310):
@@ -136,13 +171,15 @@ def shuffleChannels(source_data, args):
 
 # proposed DMMR model
 class DMMRPreTrainingModel(nn.Module):
-    def __init__(self, cuda, number_of_source=14, number_of_category=3, batch_size=10, time_steps=15):
+    def __init__(self, cuda, number_of_source=14, number_of_category=3, batch_size=10, time_steps=15,
+                 encoder_type="lstm"):
         super(DMMRPreTrainingModel, self).__init__()
         self.batch_size = batch_size
         self.time_steps = time_steps
         self.number_of_source = number_of_source
+        self.encoder_type = encoder_type
         self.attentionLayer = Attention(cuda, input_dim=310)
-        self.sharedEncoder = Encoder(input_dim=310, hid_dim=64, n_layers=1)
+        self.sharedEncoder = Encoder(input_dim=310, hid_dim=64, n_layers=1, encoder_type=encoder_type)
         self.mse = MSE()
         self.domainClassifier = DomainClassifier(input_dim=64, output_dim=14)
         for i in range(number_of_source):
@@ -462,5 +499,4 @@ class ModelReturnFeatures(nn.Module):
         x = self.baseModel.attentionLayer(x, x.shape[0], self.time_steps)
         shared_last_out, shared_hn, shared_cn = self.baseModel.sharedEncoder(x)
         return x, shared_last_out
-
 
