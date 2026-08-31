@@ -37,7 +37,7 @@ bash reproduction/launchers/run_target_session1_adapt_8gpu.sh
 
 경로와 설정은 `DMMR_DATA_ROOT`, `DMMR_OUTPUT_DIR`, `DMMR_BASE_DIR`, `DMMR_ENCODER` 등의 환경변수로 덮어쓸 수 있다.
 
-상세 설치, 단일-fold smoke test와 실험 옵션은 [REPRODUCTION.md](REPRODUCTION.md), 전체 결과는 [결과 문서](docs/RESULTS_ALL_SESSIONS_LOSO_200EP.md)를 참고한다.
+상세 설치, 단일-fold smoke test와 실험 옵션은 [REPRODUCTION.md](REPRODUCTION.md)를 참고한다.
 
 ## Citation
 

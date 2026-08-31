@@ -19,7 +19,6 @@ Paper: [DMMR: Cross-Subject Domain Generalization for EEG-Based Emotion Recognit
 | `reproduction/summarize_training.py` | Aggregate epoch metrics and generate SVG curves |
 | `reproduction/audit_seed_npz.py` | Verify NPZ structure and normalization |
 | `environment.yml` | Reproduction conda environment |
-| `docs/RESULTS_ALL_SESSIONS_LOSO_200EP.md` | Full experiment results and interpretation |
 
 ## Environment
 
@@ -201,13 +200,6 @@ Generate aggregate logs and curves:
 ```bash
 python reproduction/summarize_training.py /path/to/experiment_output
 ```
-
-## Current recommended result
-
-The strongest fixed protocol currently recorded is LSTM target-session
-adaptation for 50 epochs: 79.11% trial accuracy and 78.20% trial macro-F1 on
-the 15 subjects' sessions 2/3 (356/450 trials). See
-`docs/RESULTS_ALL_SESSIONS_LOSO_200EP.md` for all comparisons and limitations.
 
 ## Citation
 

@@ -73,5 +73,5 @@ subject_*_artifacts/
 !T-SNE/model/
 !T-SNE/model/*.pth
 
-# Local infrastructure notes
-docs/SERVER_MIGRATION_237.md
+# Local-only documents
+docs/
