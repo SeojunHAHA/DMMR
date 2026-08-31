@@ -1,47 +1,47 @@
 # DMMR
-This is the official PyTorch implementation for our AAAI'24 paper DMMR: Cross-Subject Domain Generalization for EEG-Based Emotion Recognition via Denoising Mixed Mutual Reconstruction  
-[Paper link:](https://ojs.aaai.org/index.php/AAAI/article/view/27819)
 
-## Reproduction pipeline
+AAAI 2024 논문 [DMMR](https://ojs.aaai.org/index.php/AAAI/article/view/27819)의 공식 구현을 기반으로 한 SEED 재현 저장소다. Session-1/전체 session LOSO, LSTM/CNN, validation 및 target session adaptation을 지원한다.
 
-The three-session NPZ LOSO experiments and target-session adaptation use the
-Python 3.10 / PyTorch 2.2 / CUDA 12.1 environment in `environment.yml`, not the
-legacy environment in `requirements.txt`. See [REPRODUCTION.md](REPRODUCTION.md)
-for installation, dataset validation, smoke testing, and multi-GPU commands.
+## 환경과 데이터
 
-## Datasets
-The public available datasets (SEED and SEED-IV) can be downloaded from the https://bcmi.sjtu.edu.cn/home/seed/index.html
-
-To facilitate data retrieval, the data from the first session of all subjects is utilized in both datasets, the file structure of the datasets should be like:
+```bash
+conda env create -f environment.yml
+conda activate dmmr
+export DMMR_PYTHON="$(command -v python)"
 ```
-ExtractedFeatures/
-    1/
-eeg_feature_smooth/
-    1/
+
+기본 데이터 위치는 `/media/NAS/nas_175/seojun/SEED_DE_MSMDA`다.
+
+```bash
+python reproduction/audit_seed_npz.py \
+  --data-root /media/NAS/nas_175/seojun/SEED_DE_MSMDA
 ```
-Kindly change the file path in the main.py
 
-## Usage of DMMR
-Run `python main.py`, and The results will be recorded in TensorBoard.
-The argument for the `dataset_name` is set to be `seed3` for the SEED dataset, and `seed4` for the SEED-IV dataset, respectively.
+## 실행
 
-## Ablation Studies
-Run `python ablation/witoutMix.py`  
-Run `python ablation/withoutNoise.py`  
-Run `python ablation/withoutBothMixAndNoise.py`  
+제공된 launcher는 15 folds를 GPU 8개에 분배한다.
 
-## other noise injection methods
-Run `python noiseInjectionMethods/maskChannels.py`  
-Run `python noiseInjectionMethods/maskTimeSteps.py`  
-Run `python noiseInjectionMethods/channelsShuffling.py`  
-Run `python noiseInjectionMethods/Dropout.py`  
+```bash
+# 전체 session LOSO
+bash reproduction/launchers/run_npz_loso_8gpu.sh
 
-## Plot with TSNE
-Run `python T-SNE/generatePlotByTSNE.py`  
+# 9-trial validation LOSO
+bash reproduction/launchers/run_npz_loso_val_9trials_8gpu.sh
+
+# Session-3 validation LOSO
+bash reproduction/launchers/run_npz_loso_val_session3_8gpu.sh
+
+# Target session-1 adaptation
+bash reproduction/launchers/run_target_session1_adapt_8gpu.sh
+```
+
+경로와 설정은 `DMMR_DATA_ROOT`, `DMMR_OUTPUT_DIR`, `DMMR_BASE_DIR`, `DMMR_ENCODER` 등의 환경변수로 덮어쓸 수 있다.
+
+상세 설치, 단일-fold smoke test와 실험 옵션은 [REPRODUCTION.md](REPRODUCTION.md), 전체 결과는 [결과 문서](docs/RESULTS_ALL_SESSIONS_LOSO_200EP.md)를 참고한다.
 
 ## Citation
-If you found our work useful for your research, please cite our work:
-```
+
+```bibtex
 @inproceedings{wang2024dmmr,
   title={DMMR: Cross-Subject Domain Generalization for EEG-Based Emotion Recognition via Denoising Mixed Mutual Reconstruction},
   author={Wang, Yiming and Zhang, Bin and Tang, Yujiao},
@@ -52,7 +52,3 @@ If you found our work useful for your research, please cite our work:
   year={2024}
 }
 ```
-We thank the following repositories for providing helpful functions used in our work:
-[MS-MDA](https://github.com/VoiceBeer/MS-MDA)  
-[DANN](https://github.com/fungtion/DANN) 
-
